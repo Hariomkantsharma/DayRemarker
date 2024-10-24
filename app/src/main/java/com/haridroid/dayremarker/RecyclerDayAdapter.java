@@ -1,5 +1,7 @@
 package com.haridroid.dayremarker;
 
+import static com.haridroid.dayremarker.MainActivity.year;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.Editable;
@@ -19,13 +21,11 @@ import java.util.ArrayList;
 public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.ViewHolder> {
     Context context;
     ArrayList<itemStructure> arrItems;
-    ArrayList<itemStructure> year;
 
 
     public RecyclerDayAdapter(Context context, ArrayList<itemStructure> arrItems, ArrayList<itemStructure> year) {
         this.context = context;
         this.arrItems = arrItems;
-        this.year = year;
     }
 
     @NonNull
@@ -77,7 +77,7 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
                 String newNote = s.toString();
                 arrItems.get(position).note= newNote;
                 for(int i=0; i<year.size(); i++){
-                    if(year.get(i).day.equals(day) && year.get(i).month.equals(arrItems.get(position).month)){
+                    if(year.get(i).day.equals(arrItems.get(position).day) && year.get(i).month.equals(arrItems.get(position).month)){
                         year.get(i).note= newNote;
                         break;
                     }

@@ -40,14 +40,14 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     RecyclerDayAdapter adapter;
 
-    ArrayList<String> MonthArr = new ArrayList<>();;
-    HashMap<String,Integer> MonthMap = new HashMap<>();
-    ArrayList<String> dayOfWeeks= new ArrayList<>();
+    static ArrayList<String> MonthArr = new ArrayList<>();;
+    static HashMap<String,Integer> MonthMap = new HashMap<>();
+    static ArrayList<String> dayOfWeeks= new ArrayList<>();
 
     Integer currMonth, currDay, currYear;
 
-    ArrayList<itemStructure> arrayDays;
-    ArrayList<itemStructure> year;
+    static ArrayList<itemStructure> arrayDays;
+    static ArrayList<itemStructure>  year;
     MyDBhelper DBhelper;
     @Override
 
@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
 //        // getting database on app start
 
 DBhelper= MyDBhelper.getInstance(this);
-
 
 
 

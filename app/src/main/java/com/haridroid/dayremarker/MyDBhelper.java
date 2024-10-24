@@ -15,7 +15,7 @@ public class MyDBhelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME="DayRemarker.db";
     private static final int DATABASE_VERSION=1;
-    private static final String TABLE_NAME= "2024";
+    private static final String TABLE_NAME= "Year2024";
 
     private static MyDBhelper instance;
 
@@ -41,12 +41,11 @@ public class MyDBhelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("Create Table TABLE_NAME(COL_1 Integer Primary Key, COL_2 Text, COL_3 Text, COL_4 Text, COL_5 Text)");
+        db.execSQL("CREATE TABLE " + TABLE_NAME + "(COL_1 INTEGER PRIMARY KEY, COL_2 TEXT, COL_3 TEXT, COL_4 TEXT, COL_5 TEXT)");
     }
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table if exists TABLE_NAME");
+        db.execSQL("drop table if exists " +TABLE_NAME);
         onCreate(db);
     }
 
@@ -57,8 +56,14 @@ public class MyDBhelper extends SQLiteOpenHelper {
         values.put(COL_3, day);
         values.put(COL_4, note);
         values.put(COL_5, dayOfWeek);
-        db.insert(TABLE_NAME, null, values);
-        db.close();
+        try {
+            db.execSQL("INSERT INTO " + TABLE_NAME + " (COL_2, COL_3, COL_4, COL_5) VALUES (?, ?, ?, ?)", new String[]{month, day, note, dayOfWeek});
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
     }
     public  void update (String month, String day, String note, String dayOfWeek){
         SQLiteDatabase db= this.getWritableDatabase();
@@ -68,20 +73,37 @@ public class MyDBhelper extends SQLiteOpenHelper {
         values.put(COL_4, note);
         values.put(COL_5, dayOfWeek);
         //update all values passed wherever day and month match
-        db.update(TABLE_NAME, values, "COL_2 = ? AND COL_3 = ?", new String[]{month, day});
-        db.close();
+        try{
+            db.execSQL("UPDATE " + TABLE_NAME + " SET COL_2 = ?, COL_3 = ?, COL_4 = ?, COL_5 = ? WHERE COL_2 = ? and COL_3 = ?", new String[]{month, day, note, dayOfWeek, month, day});
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
     }
+
     public  void delete (String month, String day, String note, String dayOfWeek){}
 
     public ArrayList<itemStructure> Fetchdb(){
         SQLiteDatabase db= this.getWritableDatabase();
         ArrayList<itemStructure> array_list= new ArrayList<>();
-        Cursor cr= db.rawQuery("select * from TABLE_NAME", null);
-        while(cr.moveToNext()){
-            itemStructure day= new itemStructure(cr.getString(1), cr.getString(2), cr.getString(3), cr.getString(4));
-            array_list.add(day);
+
+        try{
+            Cursor cr= db.rawQuery("select * from "+ TABLE_NAME, null);
+            while(cr.moveToNext()){
+                itemStructure day= new itemStructure(cr.getString(1), cr.getString(2), cr.getString(3), cr.getString(4));
+                array_list.add(day);
+            }
+            cr.close();
         }
-        db.close();
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            db.close();
+        }
         return array_list;
 
     }
