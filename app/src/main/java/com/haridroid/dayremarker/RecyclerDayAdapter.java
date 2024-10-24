@@ -76,13 +76,29 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String newNote = s.toString();
                 arrItems.get(position).note= newNote;
+
+                int yearIndex= -1;
+
                 for(int i=0; i<year.size(); i++){
                     if(year.get(i).day.equals(arrItems.get(position).day) && year.get(i).month.equals(arrItems.get(position).month)){
                         year.get(i).note= newNote;
+                        yearIndex= i;
                         break;
+
                     }
                 }
-                notifyDataSetChanged();
+
+                if(yearIndex!=-1){
+                    year.get(yearIndex).note= newNote;
+                    arrItems.get(position).note= newNote;
+                    holder.itemView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyItemChanged(position);
+                        }
+                    });
+                }
+
             }
 
             @Override
