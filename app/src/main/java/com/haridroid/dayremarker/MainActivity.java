@@ -128,7 +128,8 @@ public class MainActivity extends AppCompatActivity {
 
 //        // getting database on app start
 
-DBhelper= new MyDBhelper(this);
+DBhelper= MyDBhelper.getInstance(this);
+
 
 
 
@@ -153,7 +154,7 @@ DBhelper= new MyDBhelper(this);
             }
         }
 
-        adapter= new RecyclerDayAdapter(this, arrayDays);
+        adapter= new RecyclerDayAdapter(this, arrayDays,year);
         recyclerView.setAdapter(adapter);
 //        recyclerView.scrollToPosition( 15 );
 
@@ -186,6 +187,9 @@ DBhelper= new MyDBhelper(this);
         save.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        for (int i=0; i<year.size(); i++){
+                                            DBhelper.update(year.get(i).month, year.get(i).day, year.get(i).note, year.get(i).dayOfWeek);
+                                        }
                                     }
                                 });
 
@@ -220,7 +224,7 @@ DBhelper= new MyDBhelper(this);
         }
 
 
-        adapter= new RecyclerDayAdapter(this, arrayDays);
+        adapter= new RecyclerDayAdapter(this, arrayDays,year);
         recyclerView.setAdapter(adapter);
 
 
@@ -242,7 +246,6 @@ DBhelper= new MyDBhelper(this);
     }
 
     public void initialiseYear(){
-        ArrayList<itemStructure> yy= new ArrayList<>();
         for (int i=1; i<=12; i++) {
             String currMonthName = MonthArr.get(i - 1);
             int daysInMonth = MonthMap.get(currMonthName);
@@ -250,7 +253,6 @@ DBhelper= new MyDBhelper(this);
                 int dayOfWeek = getDayOfWeek(j, i, currYear);
                 itemStructure day = new itemStructure(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
                 DBhelper.insert(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
-                yy.add(day);
             }
         }
     }

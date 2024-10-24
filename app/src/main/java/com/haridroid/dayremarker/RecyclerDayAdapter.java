@@ -1,6 +1,9 @@
 package com.haridroid.dayremarker;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +19,13 @@ import java.util.ArrayList;
 public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.ViewHolder> {
     Context context;
     ArrayList<itemStructure> arrItems;
+    ArrayList<itemStructure> year;
 
 
-    public RecyclerDayAdapter(Context context, ArrayList<itemStructure> arrItems) {
+    public RecyclerDayAdapter(Context context, ArrayList<itemStructure> arrItems, ArrayList<itemStructure> year) {
         this.context = context;
         this.arrItems = arrItems;
+        this.year = year;
     }
 
     @NonNull
@@ -45,13 +50,47 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
         holder.dayBtn.setText(itemDay);
         holder.noteET.setText(arrItems.get(position).note);
 
-        holder.noteET.setOnClickListener(new View.OnClickListener() {
-
+//        //onclick
+//        holder.noteET.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                MyDBhelper dBhelper= MyDBhelper.getInstance(context);
+//                SQLiteDatabase db= dBhelper.getWritableDatabase();
+//                String note= holder.noteET.getText().toString();
+//                String month= arrItems.get(position).month;
+//                String day= arrItems.get(position).day;
+//                dBhelper.update(month, day, note, dayOfWeek);
+//                db.close();
+//
+//            }
+//        });
+//        //on change in string of edittext
+        holder.noteET.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
-        }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newNote = s.toString();
+                arrItems.get(position).note= newNote;
+                for(int i=0; i<year.size(); i++){
+                    if(year.get(i).day.equals(day) && year.get(i).month.equals(arrItems.get(position).month)){
+                        year.get(i).note= newNote;
+                        break;
+                    }
+                }
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
     }
 
     @Override
