@@ -4,6 +4,7 @@ import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
 
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<itemStructure> arrayDays;
     ArrayList<itemStructure> year;
+    MyDBhelper DBhelper;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,9 +127,8 @@ public class MainActivity extends AppCompatActivity {
         
 
 //        // getting database on app start
-//        dayDatabaseHelper db = dayDatabaseFunctions.initialiseDB(this);
-//        dayDatabaseFunctions.initialiseYear( this, currYear, Month, MonthMap, dayOfWeeks);
-//        List<dayEntity> days =
+
+DBhelper= new MyDBhelper(this);
 
 
 
@@ -140,12 +141,13 @@ public class MainActivity extends AppCompatActivity {
 
         year = new ArrayList<>();
         arrayDays= new ArrayList<>();
-        year= initialiseYear();
+        initialiseYear();
+        year= DBhelper.Fetchdb();
         arrayDays.clear();
 
         for (int i= 0 ; i<year.size(); i++){
             //printing log entry for this day including day, dayofweek, month
-            Log.d("day", year.get(i).day+" "+year.get(i).dayOfWeek+" "+year.get(i).month);
+//            Log.d("day", year.get(i).day+" "+year.get(i).dayOfWeek+" "+year.get(i).month);
             if(year.get(i).month.equals(MonthArr.get(currMonth))){
                 arrayDays.add(year.get(i));
             }
@@ -209,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         // set UI changes
         String s= MonthArr.get(currMonth)+"\n"+currYear;
         MonthText.setText(s);
+        year= DBhelper.Fetchdb();
         arrayDays.clear();
         for (int i= 0 ; i<year.size(); i++){
             if(year.get(i).month.equals(MonthArr.get(currMonth))){
@@ -238,18 +241,18 @@ public class MainActivity extends AppCompatActivity {
         return (h + 6) % 7;
     }
 
-    public ArrayList<itemStructure> initialiseYear(){
+    public void initialiseYear(){
         ArrayList<itemStructure> yy= new ArrayList<>();
-        for (int i=1; i<=12; i++){
-            String currMonthName = MonthArr.get(i-1);
+        for (int i=1; i<=12; i++) {
+            String currMonthName = MonthArr.get(i - 1);
             int daysInMonth = MonthMap.get(currMonthName);
-            for (int j=1; j<=daysInMonth; j++){
+            for (int j = 1; j <= daysInMonth; j++) {
                 int dayOfWeek = getDayOfWeek(j, i, currYear);
-                itemStructure day= new itemStructure(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
-                yy.add( day);
+                itemStructure day = new itemStructure(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
+                DBhelper.insert(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
+                yy.add(day);
             }
         }
-    return yy;
     }
 }
 

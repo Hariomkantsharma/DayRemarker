@@ -17,6 +17,7 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
     Context context;
     ArrayList<itemStructure> arrItems;
 
+
     public RecyclerDayAdapter(Context context, ArrayList<itemStructure> arrItems) {
         this.context = context;
         this.arrItems = arrItems;
@@ -43,6 +44,14 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
         }
         holder.dayBtn.setText(itemDay);
         holder.noteET.setText(arrItems.get(position).note);
+
+        holder.noteET.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+            }
+        }
     }
 
     @Override
