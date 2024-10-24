@@ -67,6 +67,7 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
 //        });
 //        //on change in string of edittext
         holder.noteET.addTextChangedListener(new TextWatcher() {
+            int posi= holder.getAbsoluteAdapterPosition();
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -74,30 +75,39 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newNote = s.toString();
-                arrItems.get(position).note= newNote;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String newNote = s.toString();
+                        arrItems.get(posi).note= newNote;
 
-                int yearIndex= -1;
 
-                for(int i=0; i<year.size(); i++){
-                    if(year.get(i).day.equals(arrItems.get(position).day) && year.get(i).month.equals(arrItems.get(position).month)){
-                        year.get(i).note= newNote;
-                        yearIndex= i;
-                        break;
 
-                    }
-                }
+                        int yearIndex= -1;
 
-                if(yearIndex!=-1){
-                    year.get(yearIndex).note= newNote;
-                    arrItems.get(position).note= newNote;
-                    holder.itemView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyItemChanged(position);
+                        for(int i=0; i<year.size(); i++){
+                            if(year.get(i).day.equals(arrItems.get(posi).day) && year.get(i).month.equals(arrItems.get(posi).month)){
+                                year.get(i).note= newNote;
+                                yearIndex= i;
+                                break;
+
+                            }
                         }
-                    });
-                }
+
+                        if(yearIndex!=-1) {
+                            year.get(yearIndex).note = newNote;
+                            arrItems.get(posi).note = newNote;
+                            holder.itemView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notifyItemChanged(posi);
+                                }
+                            });
+                        }
+                    }
+                });
+
+
 
             }
 
