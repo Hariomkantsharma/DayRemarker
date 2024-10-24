@@ -153,6 +153,8 @@ public class MainActivity extends AppCompatActivity {
 
         adapter= new RecyclerDayAdapter(this, arrayDays);
         recyclerView.setAdapter(adapter);
+//        recyclerView.scrollToPosition( 15 );
+
 
 
 
@@ -161,8 +163,10 @@ public class MainActivity extends AppCompatActivity {
         prev.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        currMonth= (currMonth-1+12)%12;
-                                        updateUI();
+                                        if(currMonth-1>=0) {
+                                            currMonth = (currMonth - 1 + 12) % 12;
+                                            updateUI();
+                                        }
                                     }
                                 });
         
@@ -170,8 +174,10 @@ public class MainActivity extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        currMonth= (currMonth+1)%12;
-                                        updateUI();
+                                        if(currMonth+1<12) {
+                                            currMonth = (currMonth + 1) % 12;
+                                            updateUI();
+                                        }
                                     }
                                 });
         
@@ -181,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
 
-//        recyclerView.scrollToPosition( currDay-1 );
 
 
     }
