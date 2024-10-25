@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List; // If arrNames is a List
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import kotlinx.coroutines.Dispatchers;
 
@@ -89,25 +90,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //8. get year data from db
-        year = new ArrayList<>();
-        year= DBhelper.Fetchdb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //8. get year data from db
+                year = new ArrayList<>();
+                year= DBhelper.Fetchdb();
 
-        // 9. getting days for currMonth from year into arr
-        arrayDays= new ArrayList<>();
-        arrayDays.clear();
-        for (int i= 0 ; i<year.size(); i++){
-            if(year.get(i).month.equals(MonthArr.get(currMonth))){
-                arrayDays.add(year.get(i));
+                // 9. getting days for currMonth from year into arr
+                arrayDays= new ArrayList<>();
+                arrayDays.clear();
+                for (int i= 0 ; i<year.size(); i++){
+                    if(year.get(i).month.equals(MonthArr.get(currMonth))){
+                        arrayDays.add(year.get(i));
+                    }
+                }
+                // when getting back
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //10. arr-> adapter-> RV
+                        adapter = new RecyclerDayAdapter(MainActivity.this, arrayDays, year);
+                        recyclerView.setAdapter(adapter);
+
+                        //11. scroll to current day
+                        recyclerView.scrollToPosition(currDay - 1);
+                    }
+                });
             }
-        }
+        }).start();
 
-        //10. arr-> adapter-> RV
-        adapter= new RecyclerDayAdapter(this, arrayDays,year);
-        recyclerView.setAdapter(adapter);
-
-        //11. scroll to current day
-         recyclerView.scrollToPosition( currDay-1);
 
 
 
@@ -167,16 +179,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     void getSharedPreferenceVaribles(){
-        SharedPreferences prefs = getSharedPreferences("currMonth", Context.MODE_PRIVATE);
-        currMonth = prefs.getInt("currMonth", 0);
-
         Calendar calendar = Calendar.getInstance();
+
+        int thisMonth= calendar.get(Calendar.MONTH);
+        SharedPreferences prefs = getSharedPreferences("currMonth", Context.MODE_PRIVATE);
+        currMonth = prefs.getInt("currMonth", thisMonth);
+
+
         int today= calendar.get(Calendar.DAY_OF_MONTH);
         SharedPreferences prefDay= getSharedPreferences("currDay", Context.MODE_PRIVATE);
         currDay = prefDay.getInt("currDay", today );
 
+        int thisYear= calendar.get(Calendar.YEAR);
         SharedPreferences prefYear= getSharedPreferences("currYear", Context.MODE_PRIVATE);
-        currYear = prefYear.getInt("currYear", 2024);
+        currYear = prefYear.getInt("currYear", thisYear);
     }
 
     void FVBI(){
@@ -277,9 +293,11 @@ public class MainActivity extends AppCompatActivity {
         return (h + 6) % 7;
     }
     public void initialiseYearDB(){
+        CountDownLatch latch= new CountDownLatch(1);
         new Thread(new Runnable() {
             @Override
             public void run() {
+
                 for (int i=1; i<=12; i++) {
                     String currMonthName = MonthArr.get(i - 1);
                     int daysInMonth = MonthMap.get(currMonthName);
@@ -289,9 +307,14 @@ public class MainActivity extends AppCompatActivity {
                         DBhelper.insert(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
                     }
                 }
+                latch.countDown();
             }
         }).start();
-
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
