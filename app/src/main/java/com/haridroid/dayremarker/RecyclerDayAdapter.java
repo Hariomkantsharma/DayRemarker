@@ -49,7 +49,7 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
         holder.noteET.setText(arrItems.get(position).note);
 
 
-//        //on change in string of edittext
+//        //Events -> 2. on change in string of edittext
         holder.noteET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

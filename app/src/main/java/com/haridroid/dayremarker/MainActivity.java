@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // EVENTS
-
+    //Events 1-> change UI on month change
         // btn on click => prev, next, monthText-> updateMonth
         prev.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -141,8 +141,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 });
-        
-        
+
         next.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -174,29 +173,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+    //Events 3-> save year to database on save btn click
         //save btn click
         save.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         save.setBackgroundResource(R.drawable.custom_btn_2);
                                         progressBar.setVisibility(View.VISIBLE);
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                for (int i=0; i<year.size(); i++){
-                                                    DBhelper.update(year.get(i).month, year.get(i).day, year.get(i).note, year.get(i).dayOfWeek);
-                                                }
 
-                                                save.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        save.setBackgroundResource(R.drawable.custom_btn_1);
-                                                        progressBar.setVisibility(View.GONE);
-                                                    }
-                                                });
-                                            }
-                                        }).start();
+                                        for (int i=0; i<year.size(); i++){
+                                            DBhelper.update(year.get(i).month, year.get(i).day, year.get(i).note, year.get(i).dayOfWeek);
+                                        }
+
+                                        save.setBackgroundResource(R.drawable.custom_btn_1);
+                                        progressBar.setVisibility(View.GONE);
 
                                     }
                                 });
