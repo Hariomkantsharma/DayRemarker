@@ -97,12 +97,7 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
                         if(yearIndex!=-1) {
                             year.get(yearIndex).note = newNote;
                             arrItems.get(posi).note = newNote;
-                            holder.itemView.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyItemChanged(posi);
-                                }
-                            });
+                            notifyItemChanged(posi);
                         }
                     }
                 });

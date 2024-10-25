@@ -141,7 +141,11 @@ DBhelper= MyDBhelper.getInstance(this);
 
         year = new ArrayList<>();
         arrayDays= new ArrayList<>();
-        initialiseYear();
+
+        if(DBhelper.isFirstRun()){
+            DBhelper.setFirstRunFlag();
+            initialiseYear();
+        }
         year= DBhelper.Fetchdb();
         arrayDays.clear();
 
@@ -186,12 +190,25 @@ DBhelper= MyDBhelper.getInstance(this);
         save.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        for (int i=0; i<year.size(); i++){
-                                            DBhelper.update(year.get(i).month, year.get(i).day, year.get(i).note, year.get(i).dayOfWeek);
-                                        }
+                                        save.setBackgroundResource(R.drawable.custom_btn_2);
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                for (int i=0; i<year.size(); i++){
+                                                    DBhelper.update(year.get(i).month, year.get(i).day, year.get(i).note, year.get(i).dayOfWeek);
+                                                }
+
+                                                save.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        save.setBackgroundResource(R.drawable.custom_btn_1);
+                                                    }
+                                                });
+                                            }
+                                        }).start();
+
                                     }
                                 });
-
 
 
     }

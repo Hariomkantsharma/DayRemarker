@@ -16,6 +16,7 @@ public class MyDBhelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME="DayRemarker.db";
     private static final int DATABASE_VERSION=1;
     private static final String TABLE_NAME= "Year2024";
+    private static final String flags= "flags";
 
     private static MyDBhelper instance;
 
@@ -42,7 +43,31 @@ public class MyDBhelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_NAME + "(COL_1 INTEGER PRIMARY KEY, COL_2 TEXT, COL_3 TEXT, COL_4 TEXT, COL_5 TEXT)");
+        //a table to check if first time app open
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+ flags +"( id integer primary key autoincrement, first_run integer default 0 )");
     }
+
+    public boolean isFirstRun(){
+        SQLiteDatabase db= this.getReadableDatabase();
+        Cursor cr= db.rawQuery("select first_run from flags",null);
+        boolean isFirstRun= true;
+        if(cr.moveToFirst()){
+            //as only first_run column is selected -> select and check value at 0th column
+            isFirstRun= cr.getInt(0)==0;
+        }
+        cr.close();
+        db.close();
+        return isFirstRun;
+    }
+    public void setFirstRunFlag(){
+        SQLiteDatabase db= this.getWritableDatabase();
+        ContentValues values= new ContentValues();
+        values.put("first_run", 1);
+        db.insert("flags", null, values);
+        db.close();
+    }
+
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("drop table if exists " +TABLE_NAME);
@@ -61,8 +86,6 @@ public class MyDBhelper extends SQLiteOpenHelper {
         }
         catch (Exception e){
             e.printStackTrace();
-        } finally {
-            db.close();
         }
     }
     public  void update (String month, String day, String note, String dayOfWeek){
@@ -78,9 +101,6 @@ public class MyDBhelper extends SQLiteOpenHelper {
         }
         catch (Exception e){
             e.printStackTrace();
-        }
-        finally {
-            db.close();
         }
     }
 
@@ -100,9 +120,6 @@ public class MyDBhelper extends SQLiteOpenHelper {
         }
         catch (Exception e){
             e.printStackTrace();
-        }
-        finally {
-            db.close();
         }
         return array_list;
 
