@@ -23,7 +23,7 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
     ArrayList<itemStructure> arrItems;
 
 
-    public RecyclerDayAdapter(Context context, ArrayList<itemStructure> arrItems, ArrayList<itemStructure> year) {
+    public RecyclerDayAdapter(Context context, ArrayList<itemStructure> arrItems) {
         this.context = context;
         this.arrItems = arrItems;
     }
@@ -50,24 +50,9 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
         holder.dayBtn.setText(itemDay);
         holder.noteET.setText(arrItems.get(position).note);
 
-//        //onclick
-//        holder.noteET.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                MyDBhelper dBhelper= MyDBhelper.getInstance(context);
-//                SQLiteDatabase db= dBhelper.getWritableDatabase();
-//                String note= holder.noteET.getText().toString();
-//                String month= arrItems.get(position).month;
-//                String day= arrItems.get(position).day;
-//                dBhelper.update(month, day, note, dayOfWeek);
-//                db.close();
-//
-//            }
-//        });
+
 //        //on change in string of edittext
         holder.noteET.addTextChangedListener(new TextWatcher() {
-            int posi= holder.getAbsoluteAdapterPosition();
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -75,39 +60,31 @@ public class RecyclerDayAdapter extends RecyclerView.Adapter<RecyclerDayAdapter.
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String newNote = s.toString();
-                        arrItems.get(posi).note= newNote;
-
-
-
-                        int yearIndex= -1;
-
-                        for(int i=0; i<year.size(); i++){
-                            if(year.get(i).day.equals(arrItems.get(posi).day) && year.get(i).month.equals(arrItems.get(posi).month)){
-                                year.get(i).note= newNote;
-                                yearIndex= i;
-                                break;
-
-                            }
-                        }
-
-                        if(yearIndex!=-1) {
-                            year.get(yearIndex).note = newNote;
-                            arrItems.get(posi).note = newNote;
-                            notifyItemChanged(posi);
-                        }
-                    }
-                });
-
-
 
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+
+                        arrItems.get(holder.getBindingAdapterPosition()).note= s.toString();
+
+//                        int yearIndex= -1;
+//
+//                        for(int i=0; i<year.size(); i++){
+//                            if(year.get(i).day.equals(arrItems.get(posi).day) && year.get(i).month.equals(arrItems.get(posi).month)){
+//                                year.get(i).note= newNote;
+//                                yearIndex= i;
+//                                break;
+//
+//                            }
+//                        }
+//
+//                        if(yearIndex!=-1) {
+//                            year.get(yearIndex).note = newNote;
+//                            arrItems.get(posi).note = newNote;
+//                            notifyItemChanged(posi);
+//                        }
+
 
             }
         });

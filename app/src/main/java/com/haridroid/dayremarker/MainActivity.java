@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         //10. arr-> adapter-> RV
-                        adapter = new RecyclerDayAdapter(MainActivity.this, arrayDays, year);
+                        adapter = new RecyclerDayAdapter(MainActivity.this, arrayDays);
                         recyclerView.setAdapter(adapter);
 
                         //11. scroll to current day
@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
 
+        // monthText on click => month_selection_dialog
         MonthText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -199,10 +200,6 @@ public class MainActivity extends AppCompatActivity {
 
                                     }
                                 });
-
-
-
-
     }
 
 
@@ -304,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        adapter= new RecyclerDayAdapter(this, arrayDays,year);
+        adapter= new RecyclerDayAdapter(this, arrayDays);
         recyclerView.setAdapter(adapter);
         progressBar.setVisibility(View.GONE);
 
