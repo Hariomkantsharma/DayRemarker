@@ -46,14 +46,14 @@ public class MainActivity extends AppCompatActivity {
     RecyclerDayAdapter adapter;
     ProgressBar progressBar;
 
-    static ArrayList<String> MonthArr = new ArrayList<>();;
-    static HashMap<String,Integer> MonthMap = new HashMap<>();
-    static ArrayList<String> dayOfWeeks= new ArrayList<>();
+    ArrayList<String> MonthArr = new ArrayList<>();;
+    HashMap<String,Integer> MonthMap = new HashMap<>();
+    ArrayList<String> dayOfWeeks= new ArrayList<>();
 
     static Integer currMonth, currDay, currYear;
 
-    static ArrayList<itemStructure> arrayDays= new ArrayList<>();
-    static ArrayList<itemStructure>  year =new ArrayList<>();
+    ArrayList<itemStructure> arrayDays= new ArrayList<>();
+    ArrayList<itemStructure>  year =new ArrayList<>();
     MyDBhelper DBhelper;
     @Override
 
@@ -292,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
         String s= MonthArr.get(currMonth)+"\n"+currYear;
         MonthText.setText(s);
 
-
         arrayDays.clear();
         for (int i= 0 ; i<year.size(); i++){
             if(year.get(i).month.equals(MonthArr.get(currMonth))){
@@ -300,9 +299,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
-        adapter= new RecyclerDayAdapter(this, arrayDays);
-        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
         progressBar.setVisibility(View.GONE);
 
     }
