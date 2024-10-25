@@ -3,6 +3,8 @@ package com.haridroid.dayremarker;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.widget.ArrayAdapter;
 import android.content.Context; // If not already imported
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,12 +44,13 @@ public class MainActivity extends AppCompatActivity {
     TextView MonthText;
     RecyclerView recyclerView;
     RecyclerDayAdapter adapter;
+    ProgressBar progressBar;
 
     static ArrayList<String> MonthArr = new ArrayList<>();;
     static HashMap<String,Integer> MonthMap = new HashMap<>();
     static ArrayList<String> dayOfWeeks= new ArrayList<>();
 
-    Integer currMonth, currDay, currYear;
+    static Integer currMonth, currDay, currYear;
 
     static ArrayList<itemStructure> arrayDays= new ArrayList<>();
     static ArrayList<itemStructure>  year =new ArrayList<>();
@@ -70,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
         //3. find view by ids for views + RV layoutset
         FVBI();
+        progressBar= findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
 
         //4. set values of monthNames, daysInMonth, namesOfDaysOfWeek
         setValuseOfNames();
@@ -153,8 +159,17 @@ public class MainActivity extends AppCompatActivity {
         MonthText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //pop up -> select month-> set curr month-> updateMonth()
+                progressBar.setVisibility(View.VISIBLE);
+                Month_selection_dialog dialog = new Month_selection_dialog(MainActivity.this);
+                dialog.show();
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        updateMonth();
+                    }
+                });
 
+                progressBar.setVisibility(View.GONE);
             }
         });
 
@@ -164,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         save.setBackgroundResource(R.drawable.custom_btn_2);
+                                        progressBar.setVisibility(View.VISIBLE);
                                         new Thread(new Runnable() {
                                             @Override
                                             public void run() {
@@ -175,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
                                                     @Override
                                                     public void run() {
                                                         save.setBackgroundResource(R.drawable.custom_btn_1);
+                                                        progressBar.setVisibility(View.GONE);
                                                     }
                                                 });
                                             }
@@ -182,6 +199,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     }
                                 });
+
+
 
 
     }
@@ -257,7 +276,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    void updateMonth(){
+    public void updateMonth(){
+        progressBar.setVisibility(View.VISIBLE);
         //update recent entries - Month, day, year in shared preferecne
         SharedPreferences.Editor editor= getSharedPreferences("currMonth", Context.MODE_PRIVATE).edit();
         editor.putInt("currMonth", currMonth);
@@ -286,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
 
         adapter= new RecyclerDayAdapter(this, arrayDays,year);
         recyclerView.setAdapter(adapter);
-
+        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -325,6 +345,12 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
+
+    public static void setMonth(int month){
+        //to set month on dialog box btn clicks
+        currMonth=month;
+    }
+
 }
 
 
