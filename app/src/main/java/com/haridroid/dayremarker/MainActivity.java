@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     Integer currMonth, currDay, currYear;
 
-    static ArrayList<itemStructure> arrayDays;
-    static ArrayList<itemStructure>  year;
+    static ArrayList<itemStructure> arrayDays= new ArrayList<>();
+    static ArrayList<itemStructure>  year =new ArrayList<>();
     MyDBhelper DBhelper;
     @Override
 
@@ -98,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 year= DBhelper.Fetchdb();
 
                 // 9. getting days for currMonth from year into arr
-                arrayDays= new ArrayList<>();
                 arrayDays.clear();
                 for (int i= 0 ; i<year.size(); i++){
                     if(year.get(i).month.equals(MonthArr.get(currMonth))){
@@ -121,9 +120,9 @@ public class MainActivity extends AppCompatActivity {
         }).start();
 
 
+    // EVENTS
 
-
-        // btn on click prev, next
+        // btn on click => prev, next, monthText-> updateMonth
         prev.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             //set currMonth-1
                                             currMonth = (currMonth - 1 + 12) % 12;
-                                            updateUI();
+                                            updateMonth();
                                         }
                                     }
                                 });
@@ -146,11 +145,21 @@ public class MainActivity extends AppCompatActivity {
 
                                             //set currMonth+1
                                             currMonth = (currMonth + 1) % 12;
-                                            updateUI();
+                                            updateMonth();
                                         }
                                     }
                                 });
-        
+
+        MonthText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //pop up -> select month-> set curr month-> updateMonth()
+
+            }
+        });
+
+
+        //save btn click
         save.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -178,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //mathods used
     void getSharedPreferenceVaribles(){
         Calendar calendar = Calendar.getInstance();
 
@@ -194,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefYear= getSharedPreferences("currYear", Context.MODE_PRIVATE);
         currYear = prefYear.getInt("currYear", thisYear);
     }
-
     void FVBI(){
         prev = findViewById(R.id.PrevMonthBtn);
         next = findViewById(R.id.NextMonthBtn);
@@ -203,7 +212,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView= findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
-
     void setValuseOfNames(){
 
         MonthArr.add("Jan");
@@ -249,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    void updateUI(){
+    void updateMonth(){
         //update recent entries - Month, day, year in shared preferecne
         SharedPreferences.Editor editor= getSharedPreferences("currMonth", Context.MODE_PRIVATE).edit();
         editor.putInt("currMonth", currMonth);
@@ -266,7 +274,8 @@ public class MainActivity extends AppCompatActivity {
         // set UI changes
         String s= MonthArr.get(currMonth)+"\n"+currYear;
         MonthText.setText(s);
-        year= DBhelper.Fetchdb();
+
+
         arrayDays.clear();
         for (int i= 0 ; i<year.size(); i++){
             if(year.get(i).month.equals(MonthArr.get(currMonth))){
