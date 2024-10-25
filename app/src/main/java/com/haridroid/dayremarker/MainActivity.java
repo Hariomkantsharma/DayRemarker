@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.reflect.Array;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List; // If arrNames is a List
 
@@ -34,7 +35,7 @@ import kotlinx.coroutines.Dispatchers;
 
 public class MainActivity extends AppCompatActivity {
 
-    //variable declarations
+    //1. variable declarations
     Button prev, next, save;
     TextView MonthText;
     RecyclerView recyclerView;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     MyDBhelper DBhelper;
     @Override
 
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -61,115 +64,61 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // shared pref variables day, month, year
+        //2. get shared pref variables day, month, year
+        getSharedPreferenceVaribles();
 
-        SharedPreferences prefs = getSharedPreferences("currMonth", Context.MODE_PRIVATE);
-        currMonth = prefs.getInt("currMonth", 0);
+        //3. find view by ids for views + RV layoutset
+        FVBI();
 
-        SharedPreferences prefDay= getSharedPreferences("currDay", Context.MODE_PRIVATE);
-        currDay = prefDay.getInt("currDay", 1);
+        //4. set values of monthNames, daysInMonth, namesOfDaysOfWeek
+        setValuseOfNames();
 
-        SharedPreferences prefYear= getSharedPreferences("currYear", Context.MODE_PRIVATE);
-        currYear = prefYear.getInt("currYear", 2024);
-
-        // define+ fvbid
-        prev = findViewById(R.id.PrevMonthBtn);
-        next = findViewById(R.id.NextMonthBtn);
-        save = findViewById(R.id.SaveBtn);
-        MonthText = findViewById(R.id.MonthText);
-        recyclerView= findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        MonthArr.add("Jan");
-        MonthArr.add("Feb");
-        MonthArr.add("Mar");
-        MonthArr.add("Apr");
-        MonthArr.add("May");
-        MonthArr.add("Jun");
-        MonthArr.add("Jul");
-        MonthArr.add("Aug");
-        MonthArr.add("Sep");
-        MonthArr.add("Oct");
-        MonthArr.add("Nov");
-        MonthArr.add("Dec");
-        
-        
-        MonthMap.put("Jan",31);
-        if(currYear%4==0) {
-            MonthMap.put("Feb",29);
-        }
-        else{
-            MonthMap.put("Feb",28);
-        }
-        MonthMap.put("Mar",31);
-        MonthMap.put("Apr",30);
-        MonthMap.put("May",31);
-        MonthMap.put("Jun",30);
-        MonthMap.put("Jul",31);
-        MonthMap.put("Aug",31);
-        MonthMap.put("Sep",30);
-        MonthMap.put("Oct",31);
-        MonthMap.put("Nov",30);
-        MonthMap.put("Dec",31);
-
-        dayOfWeeks.add("Sun");
-        dayOfWeeks.add("Mon");
-        dayOfWeeks.add("Tue");
-        dayOfWeeks.add("Wed");
-        dayOfWeeks.add("Thu");
-        dayOfWeeks.add("Fri");
-        dayOfWeeks.add("Sat");
-
-        
-        
-        
-
-        
-
-//        // getting database on app start
-
-DBhelper= MyDBhelper.getInstance(this);
-
-
-
-        //first UI on app start
-
-
-// Important: currMonth and MonthArr using zero indexing start
+        // Important: currMonth and MonthArr using zero indexing start
+        //5. set month text
         String s= MonthArr.get(currMonth)+"\n"+currYear;
         MonthText.setText(s);
 
-        year = new ArrayList<>();
-        arrayDays= new ArrayList<>();
 
+        //6.getting database on app start
+        DBhelper= MyDBhelper.getInstance(this);
+        //7. check if first time app run
         if(DBhelper.isFirstRun()){
+            // if yes-> initialise year db in background thread+ set flag=1(no more first time run)
             DBhelper.setFirstRunFlag();
-            initialiseYear();
+            initialiseYearDB();
         }
-        year= DBhelper.Fetchdb();
-        arrayDays.clear();
 
+
+        //8. get year data from db
+        year = new ArrayList<>();
+        year= DBhelper.Fetchdb();
+
+        // 9. getting days for currMonth from year into arr
+        arrayDays= new ArrayList<>();
+        arrayDays.clear();
         for (int i= 0 ; i<year.size(); i++){
-            //printing log entry for this day including day, dayofweek, month
-//            Log.d("day", year.get(i).day+" "+year.get(i).dayOfWeek+" "+year.get(i).month);
             if(year.get(i).month.equals(MonthArr.get(currMonth))){
                 arrayDays.add(year.get(i));
             }
         }
 
+        //10. arr-> adapter-> RV
         adapter= new RecyclerDayAdapter(this, arrayDays,year);
         recyclerView.setAdapter(adapter);
-//        recyclerView.scrollToPosition( 15 );
+
+        //11. scroll to current day
+         recyclerView.scrollToPosition( currDay-1);
 
 
 
-
-        // btn on click prev, next, save
-        
+        // btn on click prev, next
         prev.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         if(currMonth-1>=0) {
+                                            //to stop infinite prev/next button
+
+                                            //set currMonth-1
                                             currMonth = (currMonth - 1 + 12) % 12;
                                             updateUI();
                                         }
@@ -181,6 +130,9 @@ DBhelper= MyDBhelper.getInstance(this);
                                     @Override
                                     public void onClick(View v) {
                                         if(currMonth+1<12) {
+                                            //to stop infinite prev/next button
+
+                                            //set currMonth+1
                                             currMonth = (currMonth + 1) % 12;
                                             updateUI();
                                         }
@@ -210,6 +162,73 @@ DBhelper= MyDBhelper.getInstance(this);
                                     }
                                 });
 
+
+    }
+
+
+    void getSharedPreferenceVaribles(){
+        SharedPreferences prefs = getSharedPreferences("currMonth", Context.MODE_PRIVATE);
+        currMonth = prefs.getInt("currMonth", 0);
+
+        Calendar calendar = Calendar.getInstance();
+        int today= calendar.get(Calendar.DAY_OF_MONTH);
+        SharedPreferences prefDay= getSharedPreferences("currDay", Context.MODE_PRIVATE);
+        currDay = prefDay.getInt("currDay", today );
+
+        SharedPreferences prefYear= getSharedPreferences("currYear", Context.MODE_PRIVATE);
+        currYear = prefYear.getInt("currYear", 2024);
+    }
+
+    void FVBI(){
+        prev = findViewById(R.id.PrevMonthBtn);
+        next = findViewById(R.id.NextMonthBtn);
+        save = findViewById(R.id.SaveBtn);
+        MonthText = findViewById(R.id.MonthText);
+        recyclerView= findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    void setValuseOfNames(){
+
+        MonthArr.add("Jan");
+        MonthArr.add("Feb");
+        MonthArr.add("Mar");
+        MonthArr.add("Apr");
+        MonthArr.add("May");
+        MonthArr.add("Jun");
+        MonthArr.add("Jul");
+        MonthArr.add("Aug");
+        MonthArr.add("Sep");
+        MonthArr.add("Oct");
+        MonthArr.add("Nov");
+        MonthArr.add("Dec");
+
+
+        MonthMap.put("Jan",31);
+        if(currYear%4==0) {
+            MonthMap.put("Feb",29);
+        }
+        else{
+            MonthMap.put("Feb",28);
+        }
+        MonthMap.put("Mar",31);
+        MonthMap.put("Apr",30);
+        MonthMap.put("May",31);
+        MonthMap.put("Jun",30);
+        MonthMap.put("Jul",31);
+        MonthMap.put("Aug",31);
+        MonthMap.put("Sep",30);
+        MonthMap.put("Oct",31);
+        MonthMap.put("Nov",30);
+        MonthMap.put("Dec",31);
+
+        dayOfWeeks.add("Sun");
+        dayOfWeeks.add("Mon");
+        dayOfWeeks.add("Tue");
+        dayOfWeeks.add("Wed");
+        dayOfWeeks.add("Thu");
+        dayOfWeeks.add("Fri");
+        dayOfWeeks.add("Sat");
 
     }
 
@@ -246,9 +265,6 @@ DBhelper= MyDBhelper.getInstance(this);
 
     }
 
-
-
-
     public static int getDayOfWeek(int day, int month, int year) {
         if (month < 3) {
             month += 12;
@@ -260,17 +276,22 @@ DBhelper= MyDBhelper.getInstance(this);
         // Adjust h to match day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
         return (h + 6) % 7;
     }
-
-    public void initialiseYear(){
-        for (int i=1; i<=12; i++) {
-            String currMonthName = MonthArr.get(i - 1);
-            int daysInMonth = MonthMap.get(currMonthName);
-            for (int j = 1; j <= daysInMonth; j++) {
-                int dayOfWeek = getDayOfWeek(j, i, currYear);
-                itemStructure day = new itemStructure(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
-                DBhelper.insert(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
+    public void initialiseYearDB(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=1; i<=12; i++) {
+                    String currMonthName = MonthArr.get(i - 1);
+                    int daysInMonth = MonthMap.get(currMonthName);
+                    for (int j = 1; j <= daysInMonth; j++) {
+                        int dayOfWeek = getDayOfWeek(j, i, currYear);
+                        itemStructure day = new itemStructure(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
+                        DBhelper.insert(currMonthName, String.valueOf(j), "", dayOfWeeks.get(dayOfWeek));
+                    }
+                }
             }
-        }
+        }).start();
+
     }
 }
 
